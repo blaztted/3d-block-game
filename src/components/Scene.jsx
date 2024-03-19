@@ -3,60 +3,95 @@ import * as THREE from "three";
 
 function Scene() {
   useEffect(() => {
-    // Create a scene
-    const scene = new THREE.Scene();
+    function init() {
+      let camera, scene, renderer;
+      const originalBoxSize = 3;
+      const boxHeight = 1;
+      const stack = [];
 
-    // Create a cube
-    const geometry = new THREE.BoxGeometry(3, 1, 3);
-    const material = new THREE.MeshLambertMaterial({ color: 0xfb8e00 });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, 0, 0);
-    scene.add(mesh);
+      // Create a scene
+      scene = new THREE.Scene();
 
-    //Set up Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
+      // Set up Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    directionalLight.position.set(10, 20, 0);
-    scene.add(directionalLight);
+      // Foundation
+      addLayer(0, 0, originalBoxSize, originalBoxSize);
 
-    // Camera
-    const width = 10;
-    const height = width * (window.innerHeight / window.innerWidth);
-    const camera = new THREE.OrthographicCamera(
-      width / -2, //left
-      width / 2, // right
-      height / 2, // top
-      height / -2, //bottom
-      1, // near
-      100 // far
-    );
+      // First Layer
+      addLayer(-10, 0, originalBoxSize, originalBoxSize, "x");
 
-    //Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+      directionalLight.position.set(10, 20, 0);
+      scene.add(directionalLight);
 
-    renderer.render(scene, camera);
+      // Camera
+      const width = 10;
+      const height = width * (window.innerHeight / window.innerWidth);
+      camera = new THREE.OrthographicCamera(
+        width / -2, // left
+        width / 2, // right
+        height / 2, // top
+        height / -2, // bottom
+        1, // near
+        100 // far
+      );
 
-    //Add it to HTML
-    document.body.appendChild(renderer.domElement);
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
 
-    camera.position.set(4, 4, 4);
-    camera.lookAt(0, 0, 0);
+      // Add it to HTML
+      document.body.appendChild(renderer.domElement);
 
-    // Rendering loop
-    const animate = () => {
-      requestAnimationFrame(animate);
+      camera.position.set(4, 4, 4);
+      camera.lookAt(0, 0, 0);
 
-      // Update the scene
-      renderer.render(scene, camera);
-    };
+      // Rendering loop
+      const animate = () => {
+        requestAnimationFrame(animate);
 
-    animate(); // Start the rendering loop
+        // Update the scene
+        renderer.render(scene, camera);
+      };
+
+      animate(); // Start the rendering loop
+
+      function addLayer(x, z, width, depth, direction) {
+        const y = boxHeight * stack.length; // Add new box one layer higher
+
+        const layer = generateBox(x, y, z, width, depth);
+        layer.direction = direction;
+
+        stack.push(layer);
+      }
+
+      function generateBox(x, y, z, width, depth) {
+        const geometry = new THREE.BoxGeometry(width, boxHeight, depth);
+
+        const color = new THREE.Color(
+          `hsl(${30 + stack.length * 4}, 100%, 50%)`
+        );
+        const material = new THREE.MeshLambertMaterial({ color });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(x, y, z);
+
+        scene.add(mesh);
+
+        return {
+          threejs: mesh,
+          width,
+          depth,
+        };
+      }
+    }
+
+    init();
 
     return () => {
-      document.body.removeChild(renderer.domElement);
+      document.body.removeChild(document.querySelector("canvas"));
     };
   }, []);
 
