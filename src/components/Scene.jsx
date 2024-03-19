@@ -33,6 +33,14 @@ function Scene() {
       100 // far
     );
 
+    //Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.render(scene, camera);
+
+    //Add it to HTML
+    document.body.appendChild(renderer.domElement);
+
     camera.position.set(4, 4, 4);
     camera.lookAt(0, 0, 0);
 
