@@ -36,6 +36,7 @@ function Scene() {
     //Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+
     renderer.render(scene, camera);
 
     //Add it to HTML
@@ -44,8 +45,18 @@ function Scene() {
     camera.position.set(4, 4, 4);
     camera.lookAt(0, 0, 0);
 
+    // Rendering loop
+    const animate = () => {
+      requestAnimationFrame(animate);
+
+      // Update the scene
+      renderer.render(scene, camera);
+    };
+
+    animate(); // Start the rendering loop
+
     return () => {
-      // Cleanup code (optional)
+      document.body.removeChild(renderer.domElement);
     };
   }, []);
 
