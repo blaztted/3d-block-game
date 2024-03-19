@@ -21,6 +21,21 @@ function Scene() {
     directionalLight.position.set(10, 20, 0);
     scene.add(directionalLight);
 
+    // Camera
+    const width = 10;
+    const height = width * (window.innerHeight / window.innerWidth);
+    const camera = new THREE.OrthographicCamera(
+      width / -2, //left
+      width / 2, // right
+      height / 2, // top
+      height / -2, //bottom
+      1, // near
+      100 // far
+    );
+
+    camera.position.set(4, 4, 4);
+    camera.lookAt(0, 0, 0);
+
     return () => {
       // Cleanup code (optional)
     };
