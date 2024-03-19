@@ -71,7 +71,7 @@ function Scene() {
         const geometry = new THREE.BoxGeometry(width, boxHeight, depth);
 
         const color = new THREE.Color(
-          `hsl(${30 + stack.length * 4}, 100%, 50%)`
+          `hsl(${147 + stack.length * 4}, 100%, 50%)` //Change first number ( aka HUE VALUE )to change the color of 1st block
         );
         const material = new THREE.MeshLambertMaterial({ color });
 
@@ -85,6 +85,43 @@ function Scene() {
           width,
           depth,
         };
+      }
+
+      //CLICK EVENT
+
+      let gameStarted = false;
+
+      window.addEventListener("click", () => {
+        if (!gameStarted) {
+          renderer.setAnimationLoop(animation);
+          gameStarted = true;
+        } else {
+          const topLayer = stack[stack.length - 1];
+          const direction = topLayer.direction;
+
+          // Next layer
+
+          const nextX = direction == "x" ? 0 : -10;
+          const nextZ = direction == "z" ? 0 : -10;
+          const newWidth = originalBoxSize;
+          const newDepth = originalBoxSize;
+          const nextDirection = direction == "x" ? "z" : "x";
+
+          addLayer(nextX, nextZ, newWidth, newDepth, nextDirection);
+        }
+      });
+
+      function animation() {
+        const speed = 0.15;
+
+        const topLayer = stack[stack.length - 1];
+        topLayer.threejs.position[topLayer.direction] += speed;
+
+        //4 is the initial camera height
+        if (camera.position.y < boxHeight * (stack.length - 2) + 4) {
+          camera.position.y += speed;
+        }
+        renderer.render(scene, camera);
       }
     }
 
